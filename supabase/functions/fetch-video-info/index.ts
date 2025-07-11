@@ -205,6 +205,7 @@ serve(async (req) => {
     } catch (error) {
       console.error('Error running yt-dlp:', error)
       // Fallback to mock data
+      console.log('Falling back to mock data due to yt-dlp error')
       return createMockResponse(videoId);
     }
 
@@ -268,8 +269,15 @@ serve(async (req) => {
 
   } catch (error) {
     console.error('Error processing request:', error)
+    
+    // Return a more user-friendly error with the specific message
+    const errorMessage = error instanceof Error ? error.message : 'Internal server error';
+    
     return new Response(
-      JSON.stringify({ error: 'Internal server error' }),
+      JSON.stringify({ 
+        error: errorMessage,
+        details: 'The video processing service encountered an error. Please try again or check if the URL is valid.'
+      }),
       { 
         status: 500, 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' } 

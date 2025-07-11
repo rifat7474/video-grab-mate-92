@@ -2,11 +2,11 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Download, FileVideo, Music } from "lucide-react";
-import { VideoInfo } from "@/pages/Index";
+import { VideoInfo, VideoFormat } from "@/pages/Index";
 
 interface DownloadOptionsProps {
-  formats: VideoInfo['formats'];
-  onDownload: (format: VideoInfo['formats'][0]) => void;
+  formats: VideoFormat[];
+  onDownload: (format: VideoFormat) => void;
   downloadProgress: number | null;
 }
 

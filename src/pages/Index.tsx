@@ -8,18 +8,22 @@ import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { API_CONFIG, buildApiUrl } from "@/config/api";
 import { useToast } from "@/hooks/use-toast";
 
+export interface VideoFormat {
+  format_id: string;
+  ext: string;
+  quality: string;
+  filesize?: number;
+  url: string;
+  resolution?: string;
+  format_note?: string;
+}
+
 export interface VideoInfo {
   title: string;
   thumbnail: string;
   duration: string;
   uploader: string;
-  formats: Array<{
-    format_id: string;
-    ext: string;
-    quality: string;
-    filesize?: number;
-    url: string;
-  }>;
+  formats: VideoFormat[];
 }
 
 const Index = () => {
@@ -37,17 +41,17 @@ const Index = () => {
     setVideoInfo(null);
 
     try {
-      console.log(`Calling Python FastAPI backend at: ${buildApiUrl(API_CONFIG.ENDPOINTS.DOWNLOAD_VIDEO)}`);
+      console.log(`Calling Supabase function at: ${buildApiUrl(API_CONFIG.ENDPOINTS.FETCH_VIDEO_INFO)}`);
       
-      const response = await fetch(buildApiUrl(API_CONFIG.ENDPOINTS.DOWNLOAD_VIDEO), {
+      const response = await fetch(buildApiUrl(API_CONFIG.ENDPOINTS.FETCH_VIDEO_INFO), {
         method: 'POST',
         headers: API_CONFIG.DEFAULT_HEADERS,
         body: JSON.stringify({ url: inputUrl }),
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.detail || 'Failed to fetch video information');
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+        throw new Error(errorData.error || errorData.detail || 'Failed to fetch video information');
       }
 
       const videoData = await response.json();
@@ -72,42 +76,41 @@ const Index = () => {
     }
   };
 
-  const handleDownload = async (format: VideoInfo['formats'][0]) => {
+  const handleDownload = async (format: VideoFormat) => {
     setDownloadProgress(0);
     
-    console.log(`Download would be initiated for format:`, format);
+    console.log(`Download initiated for format:`, format);
     
-    // Create a temporary link to download the video
     try {
-      const link = document.createElement('a');
-      link.href = format.url;
-      link.download = `${videoInfo?.title || 'video'}.${format.ext}`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      
+      // Show informational message about the download
       toast({
-        title: "Download Started",
-        description: "Your download should begin shortly",
+        title: "Download Info",
+        description: `Right-click and "Save link as..." to download the ${format.quality} ${format.ext.toUpperCase()} file`,
       });
+
+      // Open the URL in a new tab so user can download manually
+      window.open(format.url, '_blank');
+      
+      // Simulate progress for UI feedback
+      const interval = setInterval(() => {
+        setDownloadProgress(prev => {
+          if (prev === null || prev >= 100) {
+            clearInterval(interval);
+            setTimeout(() => setDownloadProgress(null), 2000);
+            return 100;
+          }
+          return prev + 20;
+        });
+      }, 300);
+      
     } catch (err) {
       toast({
         title: "Download Error",
-        description: "Failed to start download",
+        description: "Failed to open download link",
         variant: "destructive",
       });
+      setDownloadProgress(null);
     }
-    
-    // Simulate download progress
-    const interval = setInterval(() => {
-      setDownloadProgress(prev => {
-        if (prev === null || prev >= 100) {
-          clearInterval(interval);
-          return null;
-        }
-        return prev + 10;
-      });
-    }, 200);
   };
 
   return (
