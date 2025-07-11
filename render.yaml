@@ -1,0 +1,19 @@
+
+services:
+  - type: web
+    name: video-downloader-frontend
+    env: static
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./dist
+    envVars:
+      - key: VITE_SUPABASE_URL
+        value: https://yzwarjplbrhqbxxmaouv.supabase.co
+      - key: VITE_SUPABASE_ANON_KEY
+        value: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl6d2FyanBsYnJocWJ4eG1hb3V2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIyNTAxNTMsImV4cCI6MjA2NzgyNjE1M30.ThY6cm_13_J8Y8hVkheKeu0q2fa5r2wJOijo-rkt2yU
+    headers:
+      - path: /*
+        name: X-Frame-Options
+        value: DENY
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
