@@ -7,6 +7,7 @@ export const API_CONFIG = {
   // Supabase function endpoints
   ENDPOINTS: {
     FETCH_VIDEO_INFO: '/functions/v1/fetch-video-info',
+    DOWNLOAD_VIDEO: '/functions/v1/download-video',
   },
   
   // Request timeout in milliseconds

@@ -73,12 +73,14 @@ serve(async (req) => {
     const videoId = match[1];
     console.log('Extracted video ID:', videoId)
 
-    // Use yt-dlp via Python subprocess to get real video information
+    // Use yt-dlp to get real video information with download URLs
     const ytDlpCommand = [
       'yt-dlp',
       '--dump-json',
       '--no-download',
-      '--format', 'best[height<=720]/best',
+      '--no-playlist',
+      '--extract-flat',
+      'false',
       url
     ];
 
@@ -87,7 +89,7 @@ serve(async (req) => {
     let ytDlpProcess;
     try {
       ytDlpProcess = new Deno.Command('yt-dlp', {
-        args: ['--dump-json', '--no-download', '--format', 'best[height<=720]/best', url],
+        args: ['--dump-json', '--no-download', '--no-playlist', '--extract-flat', 'false', url],
         stdout: 'piped',
         stderr: 'piped',
       });
@@ -122,9 +124,9 @@ serve(async (req) => {
         return `${minutes}:${secs.toString().padStart(2, '0')}`
       }
 
-      // Get additional formats
+      // Get additional formats with actual download URLs
       const formatsCommand = new Deno.Command('yt-dlp', {
-        args: ['--list-formats', '--no-download', url],
+        args: ['--list-formats', '--dump-json', '--no-download', url],
         stdout: 'piped',
         stderr: 'piped',
       });
@@ -132,55 +134,51 @@ serve(async (req) => {
       const formatsResult = await formatsCommand.output();
       let availableFormats: VideoFormat[] = [];
 
-      if (formatsResult.code === 0) {
-        // Extract video formats from yt-dlp
-        availableFormats = [
-          {
-            format_id: 'best-720p',
-            ext: 'mp4',
-            quality: '720p',
-            filesize: videoData.filesize || 50000000,
-            url: videoData.url || url,
-            resolution: '720p',
-            format_note: '720p MP4'
-          },
-          {
-            format_id: 'best-480p', 
-            ext: 'mp4',
-            quality: '480p',
-            filesize: Math.floor((videoData.filesize || 50000000) * 0.6),
-            url: videoData.url || url,
-            resolution: '480p',
-            format_note: '480p MP4'
-          },
-          {
-            format_id: 'best-360p',
-            ext: 'mp4', 
-            quality: '360p',
-            filesize: Math.floor((videoData.filesize || 50000000) * 0.3),
-            url: videoData.url || url,
-            resolution: '360p',
-            format_note: '360p MP4'
-          },
-          {
-            format_id: 'audio-mp3',
-            ext: 'mp3',
-            quality: '128kbps',
-            filesize: Math.floor((videoData.filesize || 50000000) * 0.1),
-            url: videoData.url || url,
-            format_note: 'Audio Only (MP3)'
-          }
-        ];
+      if (formatsResult.code === 0 && videoData.formats) {
+        // Extract real formats from yt-dlp with actual URLs
+        const videoFormats = videoData.formats.filter((fmt: any) => 
+          fmt.vcodec !== 'none' && fmt.url && fmt.height
+        ).slice(0, 5); // Take top 5 video formats
+        
+        const audioFormats = videoData.formats.filter((fmt: any) => 
+          fmt.acodec !== 'none' && fmt.vcodec === 'none' && fmt.url
+        ).slice(0, 3); // Take top 3 audio formats
+
+        // Process video formats
+        for (const fmt of videoFormats) {
+          availableFormats.push({
+            format_id: fmt.format_id || 'unknown',
+            ext: fmt.ext || 'mp4',
+            quality: `${fmt.height}p` || 'unknown',
+            filesize: fmt.filesize,
+            url: fmt.url,
+            resolution: fmt.resolution || `${fmt.height}p`,
+            format_note: fmt.format_note || `${fmt.height}p ${fmt.ext?.toUpperCase()}`
+          });
+        }
+
+        // Process audio formats  
+        for (const fmt of audioFormats) {
+          availableFormats.push({
+            format_id: fmt.format_id || 'audio',
+            ext: fmt.ext || 'mp3',
+            quality: fmt.abr ? `${fmt.abr}kbps` : 'audio',
+            filesize: fmt.filesize,
+            url: fmt.url,
+            format_note: `Audio Only (${fmt.ext?.toUpperCase() || 'MP3'})`
+          });
+        }
       } else {
-        console.warn('Could not get format list, using default formats')
+        console.warn('Could not get format list, using fallback formats')
+        // Fallback with actual yt-dlp extracted URL
         availableFormats = [
           {
-            format_id: 'default',
-            ext: 'mp4',
-            quality: 'best',
-            filesize: videoData.filesize || 50000000,
-            url: videoData.url || url,
-            format_note: 'Best Quality'
+            format_id: 'best',
+            ext: videoData.ext || 'mp4',
+            quality: 'best available',
+            filesize: videoData.filesize,
+            url: videoData.url || videoData.webpage_url,
+            format_note: 'Best Quality Available'
           }
         ];
       }

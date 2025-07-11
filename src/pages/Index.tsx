@@ -79,18 +79,46 @@ const Index = () => {
   const handleDownload = async (format: VideoFormat) => {
     setDownloadProgress(0);
     
-    console.log(`Download initiated for format:`, format);
+    console.log(`Starting download for format:`, format);
     
     try {
-      // Show informational message about the download
-      toast({
-        title: "Download Info",
-        description: `Right-click and "Save link as..." to download the ${format.quality} ${format.ext.toUpperCase()} file`,
+      // Get actual download URL from our download service
+      const response = await fetch(buildApiUrl(API_CONFIG.ENDPOINTS.DOWNLOAD_VIDEO), {
+        method: 'POST',
+        headers: API_CONFIG.DEFAULT_HEADERS,
+        body: JSON.stringify({ 
+          url: url,
+          format_id: format.format_id,
+          quality: format.quality 
+        }),
       });
 
-      // Open the URL in a new tab so user can download manually
-      window.open(format.url, '_blank');
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: 'Download failed' }));
+        throw new Error(errorData.error || 'Failed to get download URL');
+      }
+
+      const downloadData = await response.json();
       
+      if (!downloadData.download_url) {
+        throw new Error('No download URL received');
+      }
+
+      // Create download link with proper filename
+      const link = document.createElement('a');
+      link.href = downloadData.download_url;
+      link.download = `${videoInfo?.title?.replace(/[^a-zA-Z0-9\s]/g, '') || 'video'}.${format.ext}`;
+      link.style.display = 'none';
+      
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      toast({
+        title: "Download Started",
+        description: "Your download should begin shortly",
+      });
+
       // Simulate progress for UI feedback
       const interval = setInterval(() => {
         setDownloadProgress(prev => {
@@ -104,12 +132,16 @@ const Index = () => {
       }, 300);
       
     } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "Download failed";
+      
       toast({
         title: "Download Error",
-        description: "Failed to open download link",
+        description: errorMessage,
         variant: "destructive",
       });
+      
       setDownloadProgress(null);
+      console.error('Download error:', err);
     }
   };
 
@@ -153,7 +185,7 @@ const Index = () => {
 
         {videoInfo && (
           <div className="space-y-4 animate-fade-in">
-            <VideoPreview videoInfo={videoInfo} />
+            <VideoPreview videoInfo={videoInfo} onInstantDownload={handleDownload} />
             <DownloadOptions 
               formats={videoInfo.formats} 
               onDownload={handleDownload}

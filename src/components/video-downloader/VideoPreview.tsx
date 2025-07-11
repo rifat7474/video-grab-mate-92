@@ -1,13 +1,31 @@
 
 import { Card, CardContent } from "@/components/ui/card";
-import { Clock, User } from "lucide-react";
-import { VideoInfo } from "@/pages/Index";
+import { Button } from "@/components/ui/button";
+import { Clock, User, Download } from "lucide-react";
+import { VideoInfo, VideoFormat } from "@/pages/Index";
 
 interface VideoPreviewProps {
   videoInfo: VideoInfo;
+  onInstantDownload?: (format: VideoFormat) => void;
 }
 
-export const VideoPreview = ({ videoInfo }: VideoPreviewProps) => {
+export const VideoPreview = ({ videoInfo, onInstantDownload }: VideoPreviewProps) => {
+  // Get the best quality video format for instant download
+  const getBestFormat = (): VideoFormat | null => {
+    const videoFormats = videoInfo.formats.filter(f => f.ext !== 'mp3' && f.quality.endsWith('p'));
+    if (videoFormats.length === 0) return videoInfo.formats[0] || null;
+    
+    // Sort by quality (higher resolution first)
+    videoFormats.sort((a, b) => {
+      const aHeight = parseInt(a.quality.replace('p', '')) || 0;
+      const bHeight = parseInt(b.quality.replace('p', '')) || 0;
+      return bHeight - aHeight;
+    });
+    
+    return videoFormats[0];
+  };
+
+  const bestFormat = getBestFormat();
   return (
     <Card className="hover:shadow-lg transition-all duration-300 hover-scale">
       <CardContent className="p-6">
@@ -41,9 +59,22 @@ export const VideoPreview = ({ videoInfo }: VideoPreviewProps) => {
             </div>
             
             <div className="pt-2 animate-fade-in">
-              <p className="text-sm text-muted-foreground">
-                {videoInfo.formats.length} download options available
-              </p>
+              <div className="flex items-center justify-between">
+                <p className="text-sm text-muted-foreground">
+                  {videoInfo.formats.length} download options available
+                </p>
+                
+                {bestFormat && onInstantDownload && (
+                  <Button
+                    onClick={() => onInstantDownload(bestFormat)}
+                    size="sm"
+                    className="hover-scale transition-all duration-200 hover:shadow-md"
+                  >
+                    <Download className="w-4 h-4 mr-2" />
+                    Instant Download ({bestFormat.quality})
+                  </Button>
+                )}
+              </div>
             </div>
           </div>
         </div>
