@@ -3,13 +3,15 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Clock, User, Download } from "lucide-react";
 import { VideoInfo, VideoFormat } from "@/pages/Index";
+import { InstantDownload } from "./InstantDownload";
 
 interface VideoPreviewProps {
   videoInfo: VideoInfo;
   onInstantDownload?: (format: VideoFormat) => void;
+  downloadProgress?: number | null;
 }
 
-export const VideoPreview = ({ videoInfo, onInstantDownload }: VideoPreviewProps) => {
+export const VideoPreview = ({ videoInfo, onInstantDownload, downloadProgress }: VideoPreviewProps) => {
   // Get the best quality video format for instant download
   const getBestFormat = (): VideoFormat | null => {
     const videoFormats = videoInfo.formats.filter(f => f.ext !== 'mp3' && f.quality.endsWith('p'));
@@ -64,14 +66,12 @@ export const VideoPreview = ({ videoInfo, onInstantDownload }: VideoPreviewProps
                   {videoInfo.formats.length} download options available
                 </p>
                 
-                {bestFormat && onInstantDownload && (
-                  <Button
-                    onClick={() => onInstantDownload(bestFormat)}
-                    className="gradient-primary hover-scale transition-all duration-300 shadow-elegant hover:shadow-glow font-semibold"
-                  >
-                    <Download className="w-5 h-5 mr-2" />
-                    Instant Download ({bestFormat.quality})
-                  </Button>
+                {onInstantDownload && (
+                  <InstantDownload 
+                    formats={videoInfo.formats}
+                    onDownload={onInstantDownload}
+                    disabled={downloadProgress !== null}
+                  />
                 )}
               </div>
             </div>

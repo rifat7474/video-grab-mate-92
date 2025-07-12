@@ -231,7 +231,7 @@ serve(async (req) => {
             ext: 'mp4',
             quality: '720p',
             filesize: 50000000,
-            url: `https://www.youtube.com/watch?v=${videoId}`,
+            url: `https://ssyoutube.com/watch?v=${videoId}`,
             resolution: '720p',
             format_note: '720p'
           },
@@ -240,7 +240,7 @@ serve(async (req) => {
             ext: 'mp4',
             quality: '360p',
             filesize: 25000000,
-            url: `https://www.youtube.com/watch?v=${videoId}`,
+            url: `https://ssyoutube.com/watch?v=${videoId}`,
             resolution: '360p',
             format_note: '360p'
           },
@@ -249,7 +249,7 @@ serve(async (req) => {
             ext: 'mp3',
             quality: '128kbps',
             filesize: 5000000,
-            url: `https://www.youtube.com/watch?v=${videoId}`,
+            url: `https://ytmp3.cc/en13/${videoId}/`,
             format_note: 'Audio only'
           }
         ]

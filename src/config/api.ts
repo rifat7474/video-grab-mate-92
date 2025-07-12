@@ -7,7 +7,7 @@ export const API_CONFIG = {
   // Supabase function endpoints
   ENDPOINTS: {
     FETCH_VIDEO_INFO: '/functions/v1/fetch-video-info',
-    DOWNLOAD_VIDEO: '/functions/v1/download-video',
+    // Removed download-video endpoint since we're using direct links
   },
   
   // Request timeout in milliseconds

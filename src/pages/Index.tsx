@@ -82,54 +82,74 @@ const Index = () => {
     console.log(`Starting download for format:`, format);
     
     try {
-      // Get actual download URL from our download service
-      const response = await fetch(buildApiUrl(API_CONFIG.ENDPOINTS.DOWNLOAD_VIDEO), {
-        method: 'POST',
-        headers: API_CONFIG.DEFAULT_HEADERS,
-        body: JSON.stringify({ 
-          url: url,
-          format_id: format.format_id,
-          quality: format.quality 
-        }),
-      });
+      // For direct downloads, we'll use the URL from the format object
+      // which should be a direct download link from the fetch-video-info function
+      if (format.url && format.url.startsWith('http')) {
+        // Create download link with proper filename
+        const link = document.createElement('a');
+        link.href = format.url;
+        link.download = `${videoInfo?.title?.replace(/[^a-zA-Z0-9\s-_]/g, '') || 'video'}.${format.ext}`;
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ error: 'Download failed' }));
-        throw new Error(errorData.error || 'Failed to get download URL');
-      }
-
-      const downloadData = await response.json();
-      
-      if (!downloadData.download_url) {
-        throw new Error('No download URL received');
-      }
-
-      // Create download link with proper filename
-      const link = document.createElement('a');
-      link.href = downloadData.download_url;
-      link.download = `${videoInfo?.title?.replace(/[^a-zA-Z0-9\s]/g, '') || 'video'}.${format.ext}`;
-      link.style.display = 'none';
-      
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-
-      toast({
-        title: "Download Started",
-        description: "Your download should begin shortly",
-      });
-
-      // Simulate progress for UI feedback
-      const interval = setInterval(() => {
-        setDownloadProgress(prev => {
-          if (prev === null || prev >= 100) {
-            clearInterval(interval);
-            setTimeout(() => setDownloadProgress(null), 2000);
-            return 100;
-          }
-          return prev + 20;
+        toast({
+          title: "Download Started",
+          description: "Your download should begin shortly",
         });
-      }, 300);
+
+        // Simulate progress for UI feedback
+        const interval = setInterval(() => {
+          setDownloadProgress(prev => {
+            if (prev === null || prev >= 100) {
+              clearInterval(interval);
+              setTimeout(() => setDownloadProgress(null), 2000);
+              return 100;
+            }
+            return prev + 20;
+          });
+        }, 300);
+        
+        return;
+      }
+
+      // Fallback: redirect to external download services
+      const videoId = url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/)?.[1];
+      
+      if (videoId) {
+        let downloadUrl = '';
+        
+        if (format.ext === 'mp3' || format.quality.includes('kbps')) {
+          // For audio downloads, use a YouTube to MP3 converter
+          downloadUrl = `https://ytmp3.cc/en13/${videoId}/`;
+        } else {
+          // For video downloads, use ss prefix trick
+          downloadUrl = url.replace('youtube.com', 'ssyoutube.com').replace('youtu.be', 'ssyoutube.com');
+        }
+        
+        // Open in new tab
+        window.open(downloadUrl, '_blank', 'noopener,noreferrer');
+        
+        toast({
+          title: "Redirecting to Download",
+          description: "Opening download page in a new tab",
+        });
+
+        // Simulate progress
+        const interval = setInterval(() => {
+          setDownloadProgress(prev => {
+            if (prev === null || prev >= 100) {
+              clearInterval(interval);
+              setTimeout(() => setDownloadProgress(null), 2000);
+              return 100;
+            }
+            return prev + 25;
+          });
+        }, 400);
+      }
       
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Download failed";
@@ -190,7 +210,7 @@ const Index = () => {
 
         {videoInfo && (
           <div className="space-y-6 animate-fade-in">
-            <VideoPreview videoInfo={videoInfo} onInstantDownload={handleDownload} />
+            <VideoPreview videoInfo={videoInfo} onInstantDownload={handleDownload} downloadProgress={downloadProgress} />
             <DownloadOptions 
               formats={videoInfo.formats} 
               onDownload={handleDownload}
