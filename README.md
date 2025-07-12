@@ -1,320 +1,171 @@
+# Video Grab Mate 92
 
-# Video Downloader
-
-A modern video downloader application that allows users to paste URLs from YouTube, Facebook, Vimeo, TikTok, Instagram, Twitter, and many more platforms to download available formats using `yt-dlp`.
-
-Built with:
-- 🧩 **React + TypeScript + ShadCN UI**
-- 🌗 **Dark/Light Mode with Theme Toggle**
-- ⚡ **Supabase Edge Functions + `yt-dlp`**
-- 🔥 **Deployed on Vercel and Render**
+Video Grab Mate 92 is a modern tool for downloading, processing, and managing video content. Built primarily with TypeScript, with supporting Python scripts and CSS for styling, it’s designed to be extensible and easy to deploy.
 
 ---
 
-## 🚀 Features
+## Features
 
-- **Multi-Platform Support**: YouTube, Facebook, Vimeo, TikTok, Instagram, Twitter, and many more
-- **Video Metadata Fetching**: Paste URL to fetch video metadata and formats instantly
-- **Rich Preview**: View thumbnail, title, duration, and uploader information
-- **Multiple Format Options**: Choose from various formats (MP4, MP3) and resolutions
-- **Responsive Design**: Optimized for desktop and mobile devices
-- **Theme Support**: Toggle between dark and light modes
-- **Smooth UX**: Loading states, error handling, and progress indicators
-- **Secure Backend**: Powered by Supabase Edge Functions for scalable processing
+- **Video Downloading:** Fetch videos from supported platforms.
+- **Processing:** Convert, trim, and manipulate videos.
+- **Extensible:** Add new sources or modules easily.
+- **Cross-language:** TypeScript (frontend/backend) + Python (processing).
+- **User-Friendly:** Simple interface with CSS styling.
 
 ---
 
-## 🏗️ Project Structure
-
-```bash
-📁 src/
-├── components/
-│   ├── theme/                    # Theme management
-│   │   ├── ThemeProvider.tsx     # Theme context provider
-│   │   └── ThemeToggle.tsx       # Dark/light mode toggle
-│   ├── ui/                       # ShadCN UI components
-│   │   ├── button.tsx, card.tsx, input.tsx, etc.
-│   └── video-downloader/         # Main downloader components
-│       ├── UrlInput.tsx          # URL input form
-│       ├── VideoPreview.tsx      # Video information display
-│       ├── DownloadOptions.tsx   # Format selection UI
-│       └── ProgressIndicator.tsx # Download progress
-├── pages/
-│   ├── Index.tsx                 # Main application page
-│   └── NotFound.tsx              # 404 error page
-├── integrations/supabase/        # Supabase integration
-│   ├── client.ts                 # Supabase client setup
-│   └── types.ts                  # Database type definitions
-├── config/
-│   └── api.ts                    # API endpoint configuration
-├── hooks/                        # Custom React hooks
-├── lib/                          # Utility functions
-├── App.tsx                       # Root application component
-└── main.tsx                      # Application entry point
-
-📁 supabase/
-├── functions/
-│   └── fetch-video-info/         # Edge function for video processing
-│       └── index.ts              # yt-dlp integration logic
-└── config.toml                   # Supabase configuration
-
-📁 deployment/
-├── vercel.json                   # Vercel deployment config
-├── render.yaml                   # Render.com deployment config
-├── Dockerfile                    # Docker containerization
-└── nginx.conf                    # Nginx configuration
-```
-
----
-
-## 🛠️ Tech Stack
-
-### Frontend
-- **React 18** - Modern React with hooks and concurrent features
-- **TypeScript** - Type-safe development
-- **Vite** - Fast build tool and development server
-- **Tailwind CSS** - Utility-first CSS framework
-- **ShadCN UI** - Beautiful and accessible component library
-- **Lucide React** - Icon library
-- **React Query** - Data fetching and caching
-- **React Router** - Client-side routing
-
-### Backend
-- **Supabase Edge Functions** - Serverless backend functions
-- **yt-dlp** - Video information extraction and downloading
-- **Deno** - Runtime for edge functions
-
-### Deployment
-- **Vercel** - Frontend hosting and deployment
-- **Render.com** - Alternative deployment option
-- **Docker** - Containerization support
-
----
-
-## 🚀 Quick Start
+## Getting Started
 
 ### Prerequisites
 
-- Node.js 18+ and npm
-- Supabase CLI (for backend development)
+- **Node.js** (v18+ recommended)
+- **npm** or **yarn**
+- **Python 3.8+** (for backend processing scripts)
 
-### Local Development
+---
 
-1. **Clone the repository**
+## Local Installation
+
+1. **Clone the Repository**
    ```bash
-   git clone <your-repo-url>
-   cd video-downloader
+   git clone https://github.com/rifat7474/video-grab-mate-92.git
+   cd video-grab-mate-92
    ```
 
-2. **Install dependencies**
+2. **Install Node.js Dependencies**
    ```bash
    npm install
+   # or
+   yarn install
    ```
 
-3. **Environment Configuration**
+3. **Set Up Python Environment**
    ```bash
-   cp .env.example .env
-   # Edit .env with your Supabase credentials
+   cd backend
+   python -m venv venv
+   source venv/bin/activate
+   pip install -r requirements.txt
    ```
 
-4. **Start development server**
+4. **Start Frontend**
    ```bash
-   npm run dev
+   npm run start
    ```
 
-5. **Access the application**
-   - Frontend: http://localhost:8080
-   - Supabase Edge Functions: https://yzwarjplbrhqbxxmaouv.supabase.co/functions/v1
-
-### Supabase Edge Functions Development
-
-1. **Install Supabase CLI**
+5. **Run Python Backend**
    ```bash
-   npm install -g supabase
-   ```
-
-2. **Start local Supabase**
-   ```bash
-   supabase start
-   ```
-
-3. **Deploy functions**
-   ```bash
-   supabase functions deploy fetch-video-info
+   cd backend
+   python <main_script>.py
+   # Replace <main_script>.py with your actual entry point
    ```
 
 ---
 
-## 🌐 Deployment
+## Deployment Guide
 
-### Frontend Deployment (Vercel)
+### Deploy on Render
 
-1. **Connect to Vercel**
-   - Import your repository to Vercel
-   - Configure environment variables in Vercel dashboard
+**Frontend (Node.js/React/Vite):**
 
-2. **Environment Variables**
-   ```env
-   VITE_SUPABASE_URL=https://yzwarjplbrhqbxxmaouv.supabase.co
-   VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+1. Push your repo to GitHub.
+2. Sign in to [Render](https://render.com/) and select "New Web Service".
+3. Connect your repository and select the branch.
+4. Set **Build Command**:
    ```
-
-3. **Deploy**
-   ```bash
-   vercel --prod
+   npm install && npm run build
    ```
-
-### Alternative: Render Deployment
-
-1. **Connect Repository**
-   - Link your GitHub repository to Render
-   - Use the pre-configured `render.yaml`
-
-2. **Environment Variables**
-   - Set in Render dashboard or use the `render.yaml` configuration
-
-### Alternative: Docker Deployment
-
-1. **Build Docker image**
-   ```bash
-   docker build -t video-downloader .
+5. Set **Start Command**:
    ```
-
-2. **Run container**
-   ```bash
-   docker run -p 80:80 video-downloader
+   npm run start
    ```
+6. Add environment variables if needed (`.env`).
+7. Click "Create Web Service". Render will deploy your app.
 
-### Backend Deployment (Supabase)
+**Backend (Python):**
 
-The backend is automatically deployed via Supabase Edge Functions:
-
-1. **Deploy Edge Functions**
-   ```bash
-   supabase functions deploy fetch-video-info
+1. Create another "Web Service" in Render for your backend.
+2. Set **Build Command**:
    ```
-
-2. **Configure Secrets** (if needed)
-   ```bash
-   supabase secrets set SECRET_NAME=secret_value
+   pip install -r requirements.txt
    ```
+3. Set **Start Command**:
+   ```
+   python <main_script>.py
+   ```
+   Replace `<main_script>.py` with your backend entry file.
+4. Add environment variables if needed.
+5. Click "Create Web Service".
+
+**Connecting Frontend & Backend:**
+- You’ll get public URLs for each service. Set your frontend to use the backend’s Render URL for API requests (e.g. via `REACT_APP_BACKEND_URL`).
+- Update your `.env` and redeploy as needed.
 
 ---
 
-## 📡 API Reference
+### Deploy on Vercel
 
-### Fetch Video Information
-- **URL**: `POST /functions/v1/fetch-video-info`
-- **Body**: `{ "url": "https://youtube.com/watch?v=..." }`
-- **Response**: 
-  ```json
-  {
-    "title": "Video Title",
-    "thumbnail": "https://...",
-    "duration": "3:45",
-    "uploader": "Channel Name",
-    "formats": [
-      {
-        "format_id": "22",
-        "ext": "mp4",
-        "quality": "720p",
-        "filesize": 12345678,
-        "url": "https://..."
-      }
-    ]
-  }
-  ```
+**Frontend (Node.js/React/Vite):**
+
+1. Push your repo to GitHub.
+2. Go to [Vercel](https://vercel.com/) and click "New Project".
+3. Import your GitHub repo.
+4. Vercel will auto-detect frameworks like React/Vite. Confirm settings.
+5. If needed, set environment variables (Settings > Environment Variables).
+6. Click "Deploy".
+7. Vercel will provide a public URL.
+
+**Backend (Python):**
+
+- Vercel is not suitable for long-running Python backend servers, but you can deploy serverless Python functions if your backend logic fits this model.
+- For full backend, use Render or another platform (see above) and connect your frontend to the backend URL.
 
 ---
 
-## 🎯 Supported Platforms
+## Verifying Deployment
 
-- **YouTube** - Videos, playlists, channels
-- **Facebook** - Public videos and posts
-- **Vimeo** - Public and private videos
-- **TikTok** - Individual videos
-- **Instagram** - Posts, stories, reels
-- **Twitter** - Video tweets
-- **And many more** via yt-dlp support
+1. Visit your frontend URL.
+2. Test video downloading/processing features.
+3. Confirm the frontend can communicate with the backend (API calls).
+4. Check logs on Render/Vercel for any errors.
+5. Ensure all environment variables are correctly set.
 
 ---
 
-## 🔧 Development
+## Project Structure
 
-### Available Scripts
-
-```bash
-npm run dev          # Start development server
-npm run build        # Build for production
-npm run preview      # Preview production build
-npm run lint         # Run ESLint
-npm run type-check   # Run TypeScript type checking
+```
+video-grab-mate-92/
+├── src/         # TypeScript source files
+├── backend/     # Python scripts for processing
+├── public/      # Static assets and CSS
+├── tests/       # Test suites
+└── README.md
 ```
 
-### Project Configuration
-
-- **Vite**: `vite.config.ts`
-- **TypeScript**: `tsconfig.json`
-- **Tailwind**: `tailwind.config.ts`
-- **ESLint**: `eslint.config.js`
-
 ---
 
-## 🐛 Troubleshooting
-
-### Common Issues
-
-1. **Video URL not supported**
-   - Verify the URL is publicly accessible
-   - Check if the platform is supported by yt-dlp
-
-2. **Download not starting**
-   - Check browser popup blocker settings
-   - Verify network connectivity
-
-3. **Edge Function errors**
-   - Check Supabase function logs
-   - Ensure yt-dlp is properly installed in the function environment
-
-### Debug Information
-
-- Check browser console for frontend errors
-- Monitor Supabase Edge Function logs
-- Verify API endpoint configuration in `src/config/api.ts`
-
----
-
-## 🤝 Contributing
+## Contributing
 
 1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+2. Create your feature branch (`git checkout -b feature/my-feature`)
+3. Commit your changes (`git commit -am 'Add feature'`)
+4. Push to your branch (`git push origin feature/my-feature`)
+5. Open a pull request
 
 ---
 
-## 📄 License
+## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
-
-## 🙏 Acknowledgments
-
-- [yt-dlp](https://github.com/yt-dlp/yt-dlp) - Video downloading library
-- [ShadCN UI](https://ui.shadcn.com/) - UI component library
-- [Supabase](https://supabase.com/) - Backend infrastructure
-- [Vercel](https://vercel.com/) - Frontend hosting
+Licensed under the [MIT License](LICENSE).
 
 ---
 
-## 📞 Support
+## Author
 
-If you encounter issues:
-1. Check the console for error messages
-2. Verify your environment variables
-3. Ensure Supabase Edge Functions are deployed
-4. Check Supabase function logs for backend issues
+- [rifat7474](https://github.com/rifat7474)
 
-For additional help, please open an issue in the repository.
+---
+
+## Acknowledgments
+
+Inspired by open-source video tools and community contributions.
