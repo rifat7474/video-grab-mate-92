@@ -26,12 +26,12 @@ export const DownloadOptions = ({ formats, onDownload, downloadProgress }: Downl
   const audioFormats = formats.filter(f => f.ext === 'mp3');
 
   return (
-    <div className="grid md:grid-cols-2 gap-4 animate-fade-in">
+    <div className="grid md:grid-cols-2 gap-6 animate-fade-in">
       {videoFormats.length > 0 && (
-        <Card className="hover:shadow-lg transition-all duration-300">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <FileVideo className="w-5 h-5" />
+        <Card className="glass-effect shadow-elegant hover:shadow-glow transition-all duration-500">
+          <CardHeader className="pb-4">
+            <CardTitle className="flex items-center gap-3 text-xl">
+              <FileVideo className="w-6 h-6 text-primary" />
               Video Formats
             </CardTitle>
           </CardHeader>
@@ -39,13 +39,15 @@ export const DownloadOptions = ({ formats, onDownload, downloadProgress }: Downl
             {videoFormats.map((format, index) => (
               <div 
                 key={format.format_id} 
-                className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-all duration-200 hover-scale"
+                className="flex items-center justify-between p-4 border border-border/50 rounded-xl hover:bg-muted/30 transition-all duration-300 hover-scale group"
                 style={{ animationDelay: `${index * 100}ms` }}
               >
-                <div className="flex items-center gap-3">
-                  {getFormatIcon(format.ext)}
+                <div className="flex items-center gap-4">
+                  <div className="p-2 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors duration-300">
+                    {getFormatIcon(format.ext)}
+                  </div>
                   <div>
-                    <div className="font-medium">{format.quality}</div>
+                    <div className="font-semibold text-foreground">{format.quality}</div>
                     <div className="text-sm text-muted-foreground">
                       {format.ext.toUpperCase()} • {formatFileSize(format.filesize)}
                     </div>
@@ -54,8 +56,7 @@ export const DownloadOptions = ({ formats, onDownload, downloadProgress }: Downl
                 <Button
                   onClick={() => onDownload(format)}
                   disabled={downloadProgress !== null}
-                  size="sm"
-                  className="hover-scale transition-all duration-200 hover:shadow-md"
+                  className="gradient-primary hover-scale transition-all duration-300 shadow-elegant hover:shadow-glow font-medium"
                 >
                   <Download className={`w-4 h-4 mr-2 ${downloadProgress !== null ? 'animate-bounce' : ''}`} />
                   Download
@@ -67,10 +68,10 @@ export const DownloadOptions = ({ formats, onDownload, downloadProgress }: Downl
       )}
 
       {audioFormats.length > 0 && (
-        <Card className="hover:shadow-lg transition-all duration-300">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Music className="w-5 h-5" />
+        <Card className="glass-effect shadow-elegant hover:shadow-glow transition-all duration-500">
+          <CardHeader className="pb-4">
+            <CardTitle className="flex items-center gap-3 text-xl">
+              <Music className="w-6 h-6 text-primary" />
               Audio Formats
             </CardTitle>
           </CardHeader>
@@ -78,13 +79,15 @@ export const DownloadOptions = ({ formats, onDownload, downloadProgress }: Downl
             {audioFormats.map((format, index) => (
               <div 
                 key={format.format_id} 
-                className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-all duration-200 hover-scale"
+                className="flex items-center justify-between p-4 border border-border/50 rounded-xl hover:bg-muted/30 transition-all duration-300 hover-scale group"
                 style={{ animationDelay: `${index * 100}ms` }}
               >
-                <div className="flex items-center gap-3">
-                  {getFormatIcon(format.ext)}
+                <div className="flex items-center gap-4">
+                  <div className="p-2 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors duration-300">
+                    {getFormatIcon(format.ext)}
+                  </div>
                   <div>
-                    <div className="font-medium">{format.quality}</div>
+                    <div className="font-semibold text-foreground">{format.quality}</div>
                     <div className="text-sm text-muted-foreground">
                       {format.ext.toUpperCase()} • {formatFileSize(format.filesize)}
                     </div>
@@ -93,8 +96,7 @@ export const DownloadOptions = ({ formats, onDownload, downloadProgress }: Downl
                 <Button
                   onClick={() => onDownload(format)}
                   disabled={downloadProgress !== null}
-                  size="sm"
-                  className="hover-scale transition-all duration-200 hover:shadow-md"
+                  className="gradient-primary hover-scale transition-all duration-300 shadow-elegant hover:shadow-glow font-medium"
                 >
                   <Download className={`w-4 h-4 mr-2 ${downloadProgress !== null ? 'animate-bounce' : ''}`} />
                   Download

@@ -35,16 +35,16 @@ export const UrlInput = ({ onSubmit, loading }: UrlInputProps) => {
           placeholder="Paste video URL here (YouTube, Facebook, Vimeo, etc.)"
           value={url}
           onChange={(e) => setUrl(e.target.value)}
-          className="flex-1 transition-all duration-300 focus:scale-[1.02] hover:shadow-md"
+          className="flex-1 glass-effect transition-all duration-300 focus:scale-[1.02] hover:shadow-elegant focus:shadow-glow border-border/50"
           disabled={loading}
         />
         <Button 
           type="submit" 
           disabled={!url.trim() || !isValidUrl(url) || loading}
-          className="sm:w-auto w-full hover-scale transition-all duration-300 hover:shadow-lg"
+          className="sm:w-auto w-full gradient-primary hover-scale transition-all duration-300 shadow-elegant hover:shadow-glow font-semibold"
         >
-          <Download className={`w-4 h-4 mr-2 ${loading ? 'animate-bounce' : ''}`} />
-          {loading ? "Processing..." : "Fetch"}
+          <Download className={`w-5 h-5 mr-2 ${loading ? 'animate-bounce' : ''}`} />
+          {loading ? "Processing..." : "Fetch Video"}
         </Button>
       </div>
       

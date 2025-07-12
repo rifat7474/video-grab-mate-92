@@ -146,45 +146,50 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background p-4">
-      <div className="max-w-4xl mx-auto space-y-6">
+    <div className="min-h-screen bg-background p-4 relative overflow-hidden">
+      {/* Background gradient overlay */}
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 pointer-events-none" />
+      
+      <div className="max-w-4xl mx-auto space-y-6 relative z-10">
         <div className="flex items-center justify-between">
           <div className="text-center space-y-4 flex-1">
-            <h1 className="text-4xl font-bold text-foreground animate-fade-in">Video Downloader</h1>
-            <p className="text-lg text-muted-foreground animate-fade-in">
+            <h1 className="text-5xl font-bold text-foreground animate-fade-in bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
+              Video Downloader
+            </h1>
+            <p className="text-xl text-muted-foreground animate-fade-in">
               Download videos from YouTube, Facebook, Vimeo, and more
             </p>
           </div>
           <ThemeToggle />
         </div>
 
-        <Card>
-          <CardContent className="p-6">
+        <Card className="glass-effect shadow-elegant hover:shadow-glow transition-all duration-500">
+          <CardContent className="p-8">
             <UrlInput onSubmit={handleUrlSubmit} loading={loading} />
           </CardContent>
         </Card>
 
         {error && (
-          <Card className="border-destructive animate-fade-in">
+          <Card className="border-destructive glass-effect animate-fade-in">
             <CardContent className="p-4">
-              <p className="text-destructive text-center">{error}</p>
+              <p className="text-destructive text-center font-medium">{error}</p>
             </CardContent>
           </Card>
         )}
 
         {loading && (
-          <Card className="animate-fade-in">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-center space-x-2">
-                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
-                <span className="text-muted-foreground animate-pulse">Fetching video information...</span>
+          <Card className="glass-effect animate-fade-in">
+            <CardContent className="p-8">
+              <div className="flex items-center justify-center space-x-3">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary shadow-glow"></div>
+                <span className="text-muted-foreground animate-pulse text-lg">Fetching video information...</span>
               </div>
             </CardContent>
           </Card>
         )}
 
         {videoInfo && (
-          <div className="space-y-4 animate-fade-in">
+          <div className="space-y-6 animate-fade-in">
             <VideoPreview videoInfo={videoInfo} onInstantDownload={handleDownload} />
             <DownloadOptions 
               formats={videoInfo.formats} 

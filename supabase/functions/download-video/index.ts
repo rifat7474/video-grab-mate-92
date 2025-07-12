@@ -58,97 +58,73 @@ serve(async (req) => {
 
     const videoId = match[1];
 
-    // Build yt-dlp command for getting download URL
-    const args = [
-      'yt-dlp',
-      '--get-url',
-      '--no-playlist'
-    ];
-
-    // Add format selection if specified
-    if (format_id) {
-      args.push('--format', format_id);
-    } else if (quality) {
-      if (quality.includes('kbps')) {
-        // Audio format
-        args.push('--format', 'bestaudio[ext=m4a]/bestaudio');
-      } else {
-        // Video format
-        const height = quality.replace('p', '');
-        args.push('--format', `best[height<=${height}]/best`);
-      }
-    } else {
-      args.push('--format', 'best');
-    }
-
-    args.push(url);
-
-    console.log('Running yt-dlp command:', args.join(' '));
-
+    // For now, use a third-party API service that provides YouTube download links
+    // This is a temporary solution until yt-dlp can be properly installed
     try {
-      const ytDlpProcess = new Deno.Command('yt-dlp', {
-        args: args.slice(1), // Remove 'yt-dlp' from args
-        stdout: 'piped',
-        stderr: 'piped',
+      const apiUrl = `https://api.cobalt.tools/api/json`;
+      
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+          url: url,
+          vCodec: quality?.includes('kbps') ? 'mp3' : 'h264',
+          vQuality: quality?.includes('kbps') ? '128' : quality?.replace('p', '') || '720',
+          aFormat: quality?.includes('kbps') ? 'mp3' : 'mp4',
+          filenamePattern: 'basic',
+          isAudioOnly: quality?.includes('kbps') || false
+        })
       });
 
-      const { code, stdout, stderr } = await ytDlpProcess.output();
+      if (!response.ok) {
+        throw new Error('External API failed');
+      }
+
+      const data = await response.json();
       
-      if (code !== 0) {
-        const errorOutput = new TextDecoder().decode(stderr);
-        console.error('yt-dlp error:', errorOutput);
-        
+      if (data.status === 'error') {
+        throw new Error(data.text || 'Download failed');
+      }
+
+      if (data.status === 'success' && data.url) {
         return new Response(
           JSON.stringify({ 
-            error: 'Failed to get download URL', 
-            details: 'The video might be private, restricted, or unavailable.' 
+            download_url: data.url,
+            message: 'Download URL generated successfully'
           }),
           { 
-            status: 400, 
             headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
           }
         );
       }
 
-      const downloadUrl = new TextDecoder().decode(stdout).trim();
-      
-      if (!downloadUrl) {
-        return new Response(
-          JSON.stringify({ error: 'No download URL found' }),
-          { 
-            status: 400, 
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-          }
-        );
-      }
-
-      console.log('Successfully got download URL');
-
-      // Return the direct download URL
-      return new Response(
-        JSON.stringify({ 
-          download_url: downloadUrl,
-          message: 'Download URL generated successfully'
-        }),
-        { 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
-      );
-
-    } catch (error) {
-      console.error('Error running yt-dlp:', error);
-      
-      return new Response(
-        JSON.stringify({ 
-          error: 'Download service unavailable', 
-          details: 'Please try again later or check if the video is available.' 
-        }),
-        { 
-          status: 503, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
-      );
+    } catch (apiError) {
+      console.log('External API failed, falling back to direct YouTube link');
     }
+
+    // Fallback: Generate a download URL based on the format
+    let fallbackUrl = url;
+    if (quality?.includes('kbps')) {
+      // For audio, we'll provide a link to a YouTube to MP3 converter
+      fallbackUrl = `https://ytmp3.cc/en13/${videoId}/`;
+    } else {
+      // For video, provide a link to a YouTube downloader
+      fallbackUrl = `https://ssyoutube.com/watch?v=${videoId}`;
+    }
+
+    return new Response(
+      JSON.stringify({ 
+        download_url: fallbackUrl,
+        message: 'Redirecting to download service',
+        fallback: true
+      }),
+      { 
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+      }
+    );
 
   } catch (error) {
     console.error('Error processing download request:', error);
